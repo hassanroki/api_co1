@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Task\TaskCollection;
+use App\Http\Resources\Task\TaskResource;
 use App\Models\Task;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,8 +16,8 @@ class TaskController extends Controller
     {
         $tasks = Task::all();
         return response()->json([
-            "message" => "Task retrived successfully!",
-            "data" => $tasks
+            "message" => "Task Retrieved successfully!",
+            "data" => new TaskCollection($tasks),
         ]);
     }
 
@@ -67,12 +69,12 @@ class TaskController extends Controller
             $task = Task::findOrFail($id);
 
             return response()->json([
-                'message' => "Task retrived successfully!",
-                'data' => $task
+                'message' => "Task retrieved successfully!",
+                'data' => new TaskResource($task),
             ], 201);
         } catch (Exception $th) {
             return response()->json([
-                'message' => "Task retrived Failed!",
+                'message' => "Task retrieved Failed!",
                 'error' => $th->getMessage(),
             ], 500);
         }
@@ -114,7 +116,7 @@ class TaskController extends Controller
 
 
     // Delete
-    public function destory($id)
+    public function destroy($id)
     {
         $task = Task::findOrFail($id);
         $task->delete();
