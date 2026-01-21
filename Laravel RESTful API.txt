@@ -1,0 +1,823 @@
+Laravel RESTful API: Batch -09 => Module-22: Introduction to Postman, RESTful API Fundamentals, Routing, CRUD Operations, JSON Responses, Validation, and API Testing with Postman
+===================================================================================================================================================================================
+
+1. What is API?
+---------------
+= Application Programming Interface.
+
+2. API Install: Rest API নিয়ে কাজ করতে চাইলে API Install করতে হবে।
+Command: php artisan install:api
+Url: http://127.0.0.1:8081/api
+
+
+3. How to work API Example:
+---------------------------
+I) Command: php artisan install:api
+
+ii) Create Route>api.php:
+Route::post('/test', action: [TaskController::class, 'test']);
+
+
+iii) TaskController.php:
+  public function test(Request $request){
+        $name = $request->name;
+        return response()->json([
+            "name" => $name,
+            "Test endpoint is working"
+        ]);
+    }
+
+
+iv) Postman:
+------------
+URL POST: http://127.0.0.1:8081/api/test
+Then, body>raw>json:
+{
+    "name": "Sobuj"
+}
+
+
+
+4. Try-catch Used:
+------------------
+public function store(Request $request)
+    {
+        try {
+            $title = $request->title;
+            $description = $request->description;
+
+            $task = new Task();
+            $task->title = $title;
+            $task->description = $description;
+            $task->save();
+
+            return response()->json([
+                'message' => "Task Created Successfull!",
+            ], 201);
+        } catch (Exception $th) {
+            return response()->json([
+                'message' => "Task Created Failed!",
+            ], 404);
+        }
+    }
+
+
+
+
+5. API CRUD Example:
+--------------------
+5. I) Route>api.php:
+Route::get('/list', action: [TaskController::class, 'list']);
+Route::get('/list/{id}/single', action: [TaskController::class, 'single']);
+Route::post('/test', action: [TaskController::class, 'test']);
+Route::post('/store', action: [TaskController::class, 'store']);
+Route::post('/task/{id}', action: [TaskController::class, 'update']);
+Route::delete('/delete/{id}', action: [TaskController::class, 'destory']);
+
+
+
+5. ii) Controller:
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Task;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class TaskController extends Controller
+{
+    //
+    public function list(Request $request)
+    {
+        $tasks = Task::all();
+        return response()->json([
+            "message" => "Task retrived successfully!",
+            "data" => $tasks
+        ]);
+    }
+
+    // Test
+    public function test(Request $request)
+    {
+        $name = $request->name;
+        return response()->json([
+            "name" => $name,
+            "Test endpoint is working"
+        ]);
+    }
+
+    // store
+    public function store(Request $request)
+    {
+        // Image Postman theke form data theke data sent korte hobe
+        try {
+            $title = $request->title;
+            $description = $request->description;
+
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('tasks/test', 'public');
+            }
+
+            $task = new Task();
+            $task->title = $title;
+            $task->description = $description;
+            $task->image = $imagePath;
+            $task->save();
+
+            return response()->json([
+                'message' => "Task Created Successfull!",
+                'data' => $task,
+            ], 201);
+        } catch (Exception $th) {
+            return response()->json([
+                'message' => "Task Created Failed!",
+                'error' => $th->getMessage(),
+            ], 404);
+        }
+    }
+
+    // Single Task
+    public function single($id)
+    {
+        try {
+            $task = Task::findOrFail($id);
+
+            return response()->json([
+                'message' => "Task retrived successfully!",
+                'data' => $task
+            ], 201);
+        } catch (Exception $th) {
+            return response()->json([
+                'message' => "Task retrived Failed!",
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    // Update / Edit Task
+    public function update(Request $request, $id)
+    {
+        try {
+            $task = Task::findOrFail($id);
+
+
+            $task->title = $request->title ?? $task->title;
+            $task->description = $request->description ?? $task->description;
+
+            if ($request->hasFile('image')) {
+
+                if ($task->image && Storage::disk('public')->exists($task->image)) {
+                    Storage::disk('public')->delete($task->image);
+                }
+
+                $imagePath = $request->file('image')->store('tasks/test', 'public');
+                $task->image = $imagePath;
+            }
+
+            $task->save();
+            return response()->json([
+                'message' => 'Task Updated Successfully!',
+                'data' => $task
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Task Update Failed!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    // Delete
+    public function destory($id)
+    {
+        $task = Task::findOrFail($id);
+        $task->delete();
+
+        return response()->json([
+            'message' => "Task Delete Success!",
+        ]);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Module 22 Part-2: API Authentication with Sanctum, API Versioning, File Uploads via API, API Resources, Pagination, Rate Limiting, and API Documentation:
+=========================================================================================================================================================
+আমরা Resources এর মাধ্যমে Data Customization করে ডাটা user কে দেখাবো সেটির জন্য একটি TaskResource Create করি। এবং আর একটি TaskCollection Create করি।
+Command: php artisan make:resource Task/TaskResource
+Command: php artisan make:resource Task/TaskCollection
+
+1. A) Edit app>http>Resource>Task>TaskResource.php:
+ public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'taskTitle' => $this->title . '_Hassan',
+            'description' => $this->description,
+            'url' => $this->image ? asset('storage/' . $this->image) : null,
+            'create_at' => $this->create_at
+        ];
+    }
+
+
+1. B) Edit app>http>Resource>Task>TaskCollection.php:
+  public function toArray(Request $request): array
+    {
+        return [
+            'data' => TaskResource::collection($this->collection),
+        ];
+    }
+
+
+2. A) সব ডাটা দেখানোর সময় Collection কল করবো
+Edit app>http>controller>TaskController.php:
+public function list(Request $request)
+    {
+        $tasks = Task::all();
+        return response()->json([
+            "message" => "Task Retrieved successfully!",
+           "data" => new TaskCollection($tasks),
+        ]);
+    }
+
+
+
+2. B) Individual Data এর জন্য Resource Call করবো।
+Edit app>http>controller>TaskController.php:
+public function single($id)
+    {
+        try {
+            $task = Task::findOrFail($id);
+
+            return response()->json([
+                'message' => "Task retrieved successfully!",
+                'data' => new TaskResource($task),
+            ], 201);
+        } catch (Exception $th) {
+            return response()->json([
+                'message' => "Task retrieved Failed!",
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
+#Real Life Example: Resource and Collection
+===========================================
+3. Relation এর ক্ষেত্রে Resource আর Collection কিভাবে কাজ করবে। সেটি দেখার জন্য ২টি Table and Migration Create করে নেই।
+3. A) Command: php artisan make:model Category-m
+Edit Database>migrations>2026_01_17_102613_create_categories_table.php:
+Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->timestamps();
+        });
+Then Command: php artisan migrate
+
+
+Edit app>http>Model>Category.php:
+use HasFactory;
+
+    // Fillable
+    protected $fillable = [
+        'name',
+        'slug',
+    ];
+
+    // One to Many Relationship
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+
+
+3. B) Command: php artisan make:model Product -m
+Edit database>migrations>2026_01_17_104628_create_products_table.php:
+ Schema::create('products', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->decimal('price', 10, 2)->default(0);
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+Then, Command: php artisan migrate
+
+
+Edit app>http>Model>Product.php:
+     use HasFactory;
+
+    // Fillable
+    protected $fillable = [
+        'category_id',
+        'title',
+        'price',
+        'is_active',
+    ];
+
+    // One to Many Relationship
+    public function categories()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+
+
+3.C) ২টা টেবিলের জন্য কিছু ডামি ডাটা sql code:
+INSERT INTO categories (id, name, slug, created_at, updated_at) VALUES
+(1, 'Luxury Watches', 'luxury-watches', NOW(), NOW()),
+(2, 'Designer Bags', 'designer-bags', NOW(), NOW()),
+(3, 'Premium Electronics', 'premium-electronics', NOW(), NOW()),
+(4, 'Luxury Furniture', 'luxury-furniture', NOW(), NOW()),
+(5, 'High-End Fashion', 'high-end-fashion', NOW(), NOW());
+
+
+
+INSERT INTO products (category_id, title, price, is_active, created_at, updated_at) VALUES
+(1, 'Rolex Submariner Gold Edition', 12500.00, 1, NOW(), NOW()),
+(1, 'Omega Seamaster Professional', 9800.00, 1, NOW(), NOW()),
+(1, 'Patek Philippe Nautilus', 32000.00, 1, NOW(), NOW()),
+
+(2, 'Louis Vuitton Leather Handbag', 7500.00, 1, NOW(), NOW()),
+(2, 'Gucci Marmont Matelassé Bag', 6200.00, 1, NOW(), NOW()),
+(2, 'Prada Saffiano Luxury Tote', 5800.00, 1, NOW(), NOW()),
+
+(3, 'Apple MacBook Pro M3 Max', 4200.00, 1, NOW(), NOW()),
+(3, 'Samsung Neo QLED 8K TV', 15000.00, 1, NOW(), NOW()),
+(3, 'Bang & Olufsen Beoplay Speaker', 3900.00, 1, NOW(), NOW()),
+
+(4, 'Italian Marble Dining Table', 18500.00, 1, NOW(), NOW()),
+(4, 'Luxury Leather Sofa Set', 22000.00, 1, NOW(), NOW()),
+(4, 'Handcrafted Wooden King Bed', 14000.00, 1, NOW(), NOW()),
+
+(5, 'Versace Silk Designer Suit', 9600.00, 1, NOW(), NOW()),
+(5, 'Armani Limited Edition Jacket', 8800.00, 1, NOW(), NOW()),
+(5, 'Dolce & Gabbana Couture Dress', 11500.00, 1, NOW(), NOW());
+
+
+
+
+
+
+3. D) Data গুলা দেখানো জন্য ২টা Controller Create করি।
+Command: php artisan make:controller CategoryController
+Command: php artisan make:controller ProductController
+
+
+3. E) All Categories দেখাবো Resource and Collection এর মাথ্যমে,
+তাই Resource and Collection Create করি, তার জন্য 
+Command: php artisan make:resource Category/CategoryResource
+Command: php artisan make:resource Category/CategoryCollection
+
+3. E) i) Edit app>http>Resource>Category>CategoryResource.php:
+public function toArray(Request $request): array
+    {
+        return [
+          'id' => $this->id . 'B9',
+          'categoryName' => $this->name,
+          'slug' => $this->slug,
+          'createAt' => $this->created_at?->toDateTimeString(),
+        ];
+    }
+
+3. E. ii) Edit app>http>Resource>Category>CategoryCollection.php:
+ public function toArray(Request $request): array
+    {
+        return [
+            'data' => CategoryResource::collection($this->collection),
+        ];
+    }
+
+3. E. iii) Create Route>api.php:
+// Categories
+Route::get('/categories', [CategoryController::class, 'index']);
+
+
+3. E. iv) Edit app>http>controller>CategoryController.php:
+ // All Categories
+    public function index()
+    {
+        $categories = Category::all();
+        return response()->json([
+            'message' => 'Data Retrieve Successfully!',
+            // 'data' => $categories,
+            'data' => new CategoryCollection($categories),
+        ]);
+    }
+
+
+
+3. F) i) Categories Data with Products Data দেখাতে চাইলে, Product এর জন্য Resource and Collection Create করি।
+Command: php artisan make:resource Product/ProductResource
+Command: php artisan make:resource Product/ProductCollection
+
+Edit app>http>Resourc>Product>ProductResource.php:
+public function toArray(Request $request): array
+    {
+        return [
+            'data' => ProductResource::collection($this->collection),
+        ];
+    }
+
+
+Edit app>http>Resourc>Product>ProductCollection.php:
+ public function toArray(Request $request): array
+    {
+        return [
+            'productId' => $this->id . 'P',
+            'productName' => $this->title,
+            'productPrice' => (float)$this->price,
+            'active' => (bool)$this->is_active,
+            'createDate' => $this->created_at?->toDateTimeString(),
+        ];
+    }
+
+
+3. F. ii) Create Route>api.php:
+Route::get('/categories-products', [CategoryController::class, 'categoryWithProduct']);
+
+
+3. F. iii)  Category With Product Data Create Method
+Edit app>http>controller>CategoryController.php:
+// Category with Products
+    public function categoryWithProduct()
+    {
+        $categories = Category::with('products')->get();
+        return response()->json([
+            'message' => "Data Retrieve Success!",
+            'data' => new CategoryCollection($categories),
+        ]);
+    }
+
+
+
+
+
+
+#API Resource: একাধিক রাউট তৈরি করে। web.php এর resource route এর মতো কাজ করে।
+===================================================================================
+// Multi Route -> API Resource
+Route::apiResource('tasks', TaskController::class);
+
+
+
+#Prefix:
+========
+// Version Control Or Multi url
+Route::prefix('/v1')->group(function () {
+    // Categories
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories-products', [CategoryController::class, 'categoryWithProduct']);
+});
+
+
+
+
+#04 => Sanctum: API Authentication:
+====================================
+লারাভেল ডিফল্ট sanctum setup করা থাকে। তবু setup করতে চাইলে 
+Command: composer require Laravel/sanctum
+
+#4.1 Registration:
+4.1. A) Laravel Sanctum নিয়ে কাজ করতে চাইলে প্রথমে HasApiTokens used করতে হবে।
+Edit app>http>Model>User.php:
+-----------------------------
+use Laravel\Sanctum\HasApiTokens;
+use HasApiTokens, HasFactory, Notifiable;
+
+
+4.1. B) AuthController Create করি।
+Command: php artisan make:controller Auth/AuthController.php
+Edit app>http>controller>Auth>AuthController.php:
+-------------------------------------------------
+// Registration
+    public function register(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6',
+            ]);
+
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+            ]);
+
+            // Registration after direct login, so create token
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Registration successfully!',
+                'token_type' => 'Bearer',
+                'access_token' => $token,
+                'data' => $user,
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Registration Failed!',
+                'errors' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+
+
+4.1. C) Create API Route:
+----------------------
+ Route::post('/register', [AuthController::class, 'register']);
+
+Then, PostMant JSON Registration:
+{
+    "name": "ROKIBUL",
+    "email": "rokibul@gmail.com",
+    "password": "123456"
+}
+
+
+
+4.2) Login
+----------
+
+4.2. A) Login Create Method:
+Edit app>http>controller>Auth>AuthController.php:
+-------------------------------------------------
+// login
+    public function login(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required', 'string'],
+            ]);
+
+            $user = User::where('email', $data['email'])->first();
+            if (!$user || !Hash::check($data['password'], $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
+
+            $user->tokens()->delete();
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'User login successfully',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], status: 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Server error',
+            ], 500);
+        }
+    }
+
+
+
+4.2. A) API Route
+Edit Route>api.php:
+Route::post('/login', [AuthController::class, 'login']);
+
+4.2. C) Postman
+{
+    "email": "rokibul@gmail.com",
+    "password": "123456"
+}
+
+
+
+4.3 Logout:
+-----------
+
+4.3 A) Create Method:
+Edit app>http>controller>Auth>AuthController.php:
+-------------------------------------------------
+// Logout
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'User logout successfully!',
+        ]);
+    }
+
+4.3 B) Middleware দিয়ে auth করতে হবে।
+Create Route>api.php:
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+
+4.3 C) প্রথমে Postman এর header এ key: Accept and Value: application/json দিতে হবে।
+2nd Postman এর Authorization এ Bearer Token Select করে Token Pass (such as token: 3|cbXV9Vtf71G0LSfTJHKj45HhkAyiopRtygCN3ct7a587d751) করতে হবে, মানে লগিন এর সময় যে টোকেন তৈরি হয় সেটা।
+
+
+
+
+4.4 Authorization:
+Just Used Middleware
+Route::get('/list', action: [TaskController::class, 'list'])->middleware('auth.sanctum');
+
+Then, Postman 
+প্রথমে Postman এর header এ key: Accept and Value: application/json দিতে হবে।
+2nd Postman এর Authorization এ Bearer Token Select করে Token Pass (such as token: 3|cbXV9Vtf71G0LSfTJHKj45HhkAyiopRtygCN3ct7a587d751) করতে হবে, মানে লগিন এর সময় যে টোকেন তৈরি হয় সেটা।
+
+
+
+4.5 Route Group:
+// Version Control Or Multi url
+Route::prefix('/v1')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // Group
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::post('/logout', [AuthController::class, 'logout']);
+        // All Task
+        Route::get('/list', action: [TaskController::class, 'list']);
+        // Categories
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::get('/categories-products', [CategoryController::class, 'categoryWithProduct']);
+    });
+
+});
+
+
+
+
+4.6 => Login Max Device 3:
+----------------------------
+Edit app>http>controller>Auth>AuthController.php:
+-------------------------------------------------
+ // login
+    public function login(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required', 'string'],
+            ]);
+
+            $user = User::where('email', $data['email'])->first();
+            if (!$user || !Hash::check($data['password'], $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
+
+            // $user->tokens()->delete();
+            $maxDevice = 3;
+            $activeTokenCount = $user->tokens()->count();
+
+            if ($activeTokenCount > $maxDevice) {
+                return response()->json([
+                    'message' => 'Maximum device limit reached. Please logout from another device to login.',
+                ], 403);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'User login successfully',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], status: 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Server error',
+            ], 500);
+        }
+    }
+
+
+
+
+
+4.7 => Max Device Login, Such as Netflix
+-----------------------------------------
+Edit app>http>controller>Auth>AuthController.php:
+-------------------------------------------------
+  // login
+    public function login(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required', 'string'],
+            ]);
+
+            $user = User::where('email', $data['email'])->first();
+            if (!$user || !Hash::check($data['password'], $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
+
+            // On Device
+            // $user->tokens()->delete();
+            $maxDevice = 3;
+            $activeTokenCount = $user->tokens()->count();
+
+            // Max 3 Device
+            // if ($activeTokenCount > $maxDevice) {
+            //     return response()->json([
+            //         'message' => 'Maximum device limit reached. Please logout from another device to login.',
+            //     ], 403);
+            // }
+
+            // Oldest Token Delete
+            if ($activeTokenCount >= $maxDevice) {
+                $user->tokens()
+                    ->orderBy('created_at')
+                    ->limit(1)
+                    ->delete();
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'User login successfully',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], status: 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Server error',
+            ], 500);
+        }
+    }
+
+
+
+
+
+
+
+
+
+5 => API Documentation: Very Important Topics
+==============================================
+Environment Setup করে Postman Dynamic করতে পারি।
+Environment Name দিবো। দিলাম name API
+Then, Variable এর নাম baseurl, value দিবো http://127.0.0.1:8081/api/
+আবার, Variable এর নাম access_token, value দিবো 21|5tjFL34bTvYZZTv6kLW0fbcxFCL2cJYLec5ogIZ76ba2b549
+
+এখন collection এ select API
+Description দিবো।
+Route Set: {{baseurl}}v1/list
+Header: Key->Accept Value->application/json
+Authorization: Auth Type: Bearer Token, Token: {{access_token}}
+
+Collection Export করতে পারি। 
+Then, Chatgpt টিকে দিয়ে documentation করে readme file এ দিবো।
+
+
+
+
+
+
+
+
+
+
+

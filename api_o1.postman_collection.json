@@ -1,0 +1,581 @@
+{
+  "info": {
+    "_postman_id": "12c659f1-b4f4-4c77-87b1-d152b40d3677",
+    "name": "api_o1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47908446",
+    "_collection_link": "https://go.postman.co/collection/47908446-12c659f1-b4f4-4c77-87b1-d152b40d3677?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"ROKIBUL\",\r\n    \"email\": \"rokibul@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/v1/register",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rokibul@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/v1/login",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/v1/logout",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "StartFragment\n\n### 🔐 Authentication\n\nThe application uses **token-based authentication** with Laravel Sanctum.  \n  \nUsers authenticate using email and password, and upon successful login, a secure **Bearer access token** is issued.  \n  \nThis token must be included in the `Authorization` header to access protected endpoints.\n\nEndFragment",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "task",
+      "item": [
+        {
+          "name": "list",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|PHX3NBx0VkmT05FbKg4xRHDvIkM0aL0cbfwfxju334cfd96e",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/v1/list",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getSginleTask",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/list/5/single",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "list",
+                "5",
+                "single"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "5|8EAewzq5tjhqwg98VKVc0m0bLiQo9mO2LaKhuyYO6faacf9d",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "applicatoin/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Dahaka1",
+                  "type": "text",
+                  "uuid": "207783ec-9b9b-43a4-9a11-853dd8717455"
+                },
+                {
+                  "key": "description",
+                  "value": "Dhaka is both the capital and the largest ciry of Bangladesh1",
+                  "type": "text",
+                  "uuid": "10ac470d-9ec1-4640-9ab1-80bb38ee2572"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "85606df1-6872-47d9-8be0-9bb7ec6ba4ff",
+                  "src": "/C:/Users/BAITSBD/Downloads/lifestyle.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/v1/store",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "store"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Dahaka update",
+                  "type": "text",
+                  "uuid": "26fc48d4-5b4d-4962-a47a-9427043fcd3e"
+                },
+                {
+                  "key": "description",
+                  "value": "Dhaka is both the capital and the largest ciry of Bangladesh update",
+                  "type": "text",
+                  "uuid": "079023f2-7268-4652-b331-e4bdcdb69678"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "71b07cd4-06d4-4048-bb99-e15bbdccb966",
+                  "src": "/C:/Users/BAITSBD/Downloads/cr.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/task/6",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "task",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "taskDelete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/delete/5",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "delete",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "StartFragment\n\n### 📋 Task Management\n\nThe Task Management module allows users to create, update, view, and delete tasks efficiently.  \n  \nIt helps organize work, track progress, and manage tasks with proper access control within the application.\n\nEndFragment",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "category",
+      "item": [
+        {
+          "name": "categoryWithProduct",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/v1/categories-products",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "categories-products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "categoryList",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8081/api/categories",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "StartFragment\n\n### 🗂️ Category\n\nThe Category module is used to organize and classify data into different groups.  \n  \nIt helps improve data structure, filtering, and management within the application.\n\nEndFragment",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Sobuj\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8081/api/test",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "test"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
