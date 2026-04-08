@@ -24,7 +24,7 @@ Route::prefix('/v1')->group(function () {
     Route::post('/test', action: [TaskController::class, 'test']);
 
     // Group
-    Route::middleware('auth:sanctum')->group(function(){
+    Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         // All Task
         Route::get('/list', action: [TaskController::class, 'list']);
@@ -37,5 +37,5 @@ Route::prefix('/v1')->group(function () {
         Route::get('/categories', [CategoryController::class, 'index']);
         Route::get('/categories-products', [CategoryController::class, 'categoryWithProduct']);
     });
-
+    Route::get('/listTest', action: [TaskController::class, 'list']);
 });
